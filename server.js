@@ -18,7 +18,10 @@ const app = Fastify({
 });
 
 app.register(require("@fastify/formbody"));
-
+// 新增首页根路由 修复404
+app.get('/', async (req, reply) => {
+  reply.send('✅ 心跳服务正常运行中');
+});
 const PORT = Number(process.env.PORT) || 3000;
 const TARGET_API_URL = process.env.TARGET_API_URL;
 const TIMELINE_FILE = "enhanced_messages.json";
