@@ -5,7 +5,7 @@ const fs = require("fs-extra");
 const path = require("path");
 
 const DEFAULT_BODY_LIMIT_MB = 50;
-
+const barkUrl = `https://api.day.app/${barkKey}/心跳服务正常/${now}`;
 function readBodyLimitBytes() {
   const configured = Number(process.env.REQUEST_BODY_LIMIT_MB);
   const mb = Number.isFinite(configured) && configured > 0 ? configured : DEFAULT_BODY_LIMIT_MB;
@@ -18,9 +18,22 @@ const app = Fastify({
 });
 
 app.register(require("@fastify/formbody"));
-// 新增首页根路由 修复404
+
+// 新增首页根路由 + Bark 推送
 app.get('/', async (req, reply) => {
-  reply.send('✅ 心跳服务正常运行中');
+    try {
+        const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+        const barkKey = process.env.BARK_KEY;
+        if (barkKey) {
+            const barkUrl = `https://api.day.app/${barkKey}/心跳服务正常/${now}`;
+            await fetch(barkUrl);
+            reply.send(`✅ 心跳服务正常运行中！已通知手机（${now}）`);
+        } else {
+            reply.send('⚠️ 服务运行中，但未配置 BARK_KEY');
+        }
+    } catch (e) {
+        reply.send('❌ 服务运行中，推送失败，请检查 BARK_KEY');
+    }
 });
 const PORT = Number(process.env.PORT) || 3000;
 const TARGET_API_URL = process.env.TARGET_API_URL;
