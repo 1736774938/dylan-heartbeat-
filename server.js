@@ -5,7 +5,7 @@ const fs = require("fs-extra");
 const path = require("path");
 
 const DEFAULT_BODY_LIMIT_MB = 50;
-const barkUrl = `https://api.day.app/${barkKey}/心跳服务正常/${now}`;
+
 function readBodyLimitBytes() {
   const configured = Number(process.env.REQUEST_BODY_LIMIT_MB);
   const mb = Number.isFinite(configured) && configured > 0 ? configured : DEFAULT_BODY_LIMIT_MB;
